@@ -63,6 +63,59 @@ function ensureStableName(manifest, pathKeys, len) {
 }
 
 /**
+ * Normalize a stored filename or base name by stripping repeated extensions.
+ * Example: ("abc.png.png", "png") -> "abc"
+ * @param {string} value
+ * @param {string} extNoDot
+ * @returns {string}
+ */
+function stripRepeatedExtension(value, extNoDot) {
+  const re = new RegExp(`(\\.${extNoDot})+$`, 'i');
+  return String(value || '').replace(re, '');
+}
+
+/**
+ * Ensure the manifest asset key stores a stable *base name* (no extension).
+ * Migrates old manifest values that included extensions.
+ * @param {any} manifest
+ * @param {string[]} pathKeys
+ * @param {number} len
+ * @param {string} extNoDot
+ * @returns {string}
+ */
+function ensureStableBaseName(manifest, pathKeys, len, extNoDot) {
+  const current = ensureStableName(manifest, pathKeys, len);
+  const base = stripRepeatedExtension(current, extNoDot);
+  // Write back the normalized base so it doesn't grow each build.
+  let node = manifest;
+  for (let i = 0; i < pathKeys.length - 1; i += 1) {
+    node = node[pathKeys[i]];
+  }
+  node[pathKeys[pathKeys.length - 1]] = base;
+  return base;
+}
+
+/**
+ * Delete files in a directory that match a set of exact names or a prefix regex.
+ * @param {string} dir
+ * @param {RegExp} pattern
+ * @param {Set<string>} keepNames
+ */
+function deleteMatchingFiles(dir, pattern, keepNames) {
+  if (!fs.existsSync(dir)) return;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const name = entry.name;
+    if (keepNames.has(name)) continue;
+    if (!pattern.test(name)) continue;
+    try {
+      fs.rmSync(path.join(dir, name), { force: true });
+    } catch (_) {}
+  }
+}
+
+/**
  * @param {string} inputPath
  * @returns {string}
  */
@@ -153,26 +206,36 @@ async function main() {
   // -----------------------------------------------------------------------
   const publicOutDir = path.join(projectRoot, manifest.public?.baseDir || 'dist/public');
   const srcPublicDir = path.join(projectRoot, 'src', 'public');
+  fs.mkdirSync(publicOutDir, { recursive: true });
 
   // CSS
-  const cssName = ensureStableName(manifest, ['public', 'assets', 'trackerCss'], 24);
+  const cssBase = ensureStableBaseName(
+    manifest,
+    ['public', 'assets', 'trackerCss'],
+    24,
+    'css'
+  );
   const cssIn = path.join(srcPublicDir, 'tracker.css');
-  const cssFile = `${cssName}.css`;
+  const cssFile = `${cssBase}.css`;
   const cssOutRel = path.join(manifest.public?.baseDir || 'dist/public', cssFile);
   const cssOut = path.join(projectRoot, cssOutRel);
   if (fs.existsSync(cssIn)) {
     const css = readText(cssIn);
     const cssResult = await esbuild.transform(css, { loader: 'css', minify: true });
     writeText(cssOut, cssResult.code);
-    manifest.public.assets.trackerCss = cssFile;
   }
 
   // Browser JS (bundle to iife, minify, then obfuscate)
-  const jsName = ensureStableName(manifest, ['public', 'assets', 'trackerJs'], 24);
+  const jsBase = ensureStableBaseName(
+    manifest,
+    ['public', 'assets', 'trackerJs'],
+    24,
+    'js'
+  );
   const jsIn = path.join(srcPublicDir, 'tracker.js');
-  const jsFile = `${jsName}.js`;
+  const jsFile = `${jsBase}.js`;
   const jsOutRel = path.join(manifest.public?.baseDir || 'dist/public', jsFile);
-  const jsTmpOut = path.join(publicOutDir, `${jsName}.bundle.tmp.js`);
+  const jsTmpOut = path.join(publicOutDir, `${jsBase}.bundle.tmp.js`);
   const jsOut = path.join(projectRoot, jsOutRel);
   if (fs.existsSync(jsIn)) {
     await esbuild.build({
@@ -201,31 +264,34 @@ async function main() {
     }).getObfuscatedCode();
     writeText(jsOut, jsObfuscated);
     fs.rmSync(jsTmpOut, { force: true });
-    manifest.public.assets.trackerJs = jsFile;
   }
 
   // Images: copy + rename (so browser-served asset names aren't source names)
-  const logoName = ensureStableName(manifest, ['public', 'assets', 'logoPng'], 24);
+  const logoBase = ensureStableBaseName(
+    manifest,
+    ['public', 'assets', 'logoPng'],
+    24,
+    'png'
+  );
   const logoIn = path.join(srcPublicDir, 'post loogo.png');
-  const logoFile = `${logoName}.png`;
+  const logoFile = `${logoBase}.png`;
   const logoOutRel = path.join(manifest.public?.baseDir || 'dist/public', logoFile);
   const logoOut = path.join(projectRoot, logoOutRel);
   if (fs.existsSync(logoIn)) {
     fs.mkdirSync(path.dirname(logoOut), { recursive: true });
     fs.copyFileSync(logoIn, logoOut);
-    manifest.public.assets.logoPng = logoFile;
   }
 
-  const faviconName = ensureStableName(manifest, ['public', 'assets', 'faviconSvg'], 24);
-  const faviconIn = path.join(srcPublicDir, 'favicon.svg');
-  const faviconFile = `${faviconName}.svg`;
-  const faviconOutRel = path.join(manifest.public?.baseDir || 'dist/public', faviconFile);
-  const faviconOut = path.join(projectRoot, faviconOutRel);
-  if (fs.existsSync(faviconIn)) {
-    fs.mkdirSync(path.dirname(faviconOut), { recursive: true });
-    fs.copyFileSync(faviconIn, faviconOut);
-    manifest.public.assets.faviconSvg = faviconFile;
-  }
+  // Cleanup: ensure rebuilds do not accumulate duplicate assets.
+  // Keep only the current CSS/JS/logo outputs, delete obvious duplicates
+  // like *.png.png.png or old favicon SVGs.
+  const keep = new Set([cssFile, jsFile, logoFile]);
+  deleteMatchingFiles(publicOutDir, /\.css(\.css)+$/i, keep);
+  deleteMatchingFiles(publicOutDir, /\.js(\.js)+$/i, keep);
+  deleteMatchingFiles(publicOutDir, /\.png(\.png)+$/i, keep);
+  deleteMatchingFiles(publicOutDir, /\.svg(\.svg)+$/i, keep);
+  // Also remove any standalone svg favicon artifacts (we now use PNG logo for favicon).
+  deleteMatchingFiles(publicOutDir, /\.svg$/i, keep);
 
   writeJson(manifestPath, manifest);
 

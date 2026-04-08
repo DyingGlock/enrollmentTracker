@@ -6,10 +6,9 @@
   "public": {
     "baseDir": "dist/public",
     "assets": {
-      "trackerCss": "YX5f7NaYQKqi0ShKbDW6DZGh.css.css.css.css",
-      "trackerJs": "tRpj5MEXNvGFO4Kq6NEKY15w.js.js.js.js",
-      "logoPng": "TPlcECBqPI3dsypdTX7BeS0e.png.png.png.png",
-      "faviconSvg": "EtPiYI0l2h8d5h9eypCqcwCE.svg.svg.svg.svg"
+      "trackerCss": "YX5f7NaYQKqi0ShKbDW6DZGh",
+      "trackerJs": "tRpj5MEXNvGFO4Kq6NEKY15w",
+      "logoPng": "TPlcECBqPI3dsypdTX7BeS0e"
     }
   }
 }

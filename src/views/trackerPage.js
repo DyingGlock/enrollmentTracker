@@ -337,8 +337,8 @@ function renderTrackerPage({
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
-    <link rel="icon" href="${escapeHtml(assets.faviconHref)}" type="image/svg+xml" />
-    <link rel="shortcut icon" href="${escapeHtml(assets.faviconHref)}" type="image/svg+xml" />
+    <link rel="icon" href="${escapeHtml(assets.faviconHref)}" type="image/png" />
+    <link rel="shortcut icon" href="${escapeHtml(assets.faviconHref)}" type="image/png" />
     <link rel="apple-touch-icon" href="${escapeHtml(assets.logoPngHref)}" />
     <link rel="stylesheet" href="${escapeHtml(assets.trackerCssHref)}" />
     <script defer src="${escapeHtml(assets.trackerJsSrc)}"></script>

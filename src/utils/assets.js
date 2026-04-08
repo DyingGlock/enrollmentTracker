@@ -31,7 +31,7 @@ function getPublicAssetUrls() {
       trackerCssHref: '/static/tracker.css',
       trackerJsSrc: '/static/tracker.js',
       logoPngHref: '/static/post%20loogo.png',
-      faviconHref: '/static/favicon.svg',
+      faviconHref: '/static/post%20loogo.png',
     };
   }
 
@@ -41,7 +41,8 @@ function getPublicAssetUrls() {
   const trackerCss = assets.trackerCss ? `/static/${assets.trackerCss}` : '/static/tracker.css';
   const trackerJs = assets.trackerJs ? `/static/${assets.trackerJs}` : '/static/tracker.js';
   const logoPng = assets.logoPng ? `/static/${assets.logoPng}` : '/static/post%20loogo.png';
-  const favicon = assets.faviconSvg ? `/static/${assets.faviconSvg}` : '/static/favicon.svg';
+  // Favicon uses the same logo PNG.
+  const favicon = logoPng;
 
   return {
     trackerCssHref: trackerCss,
