@@ -226,8 +226,8 @@ function renderRows(records, archived) {
               reviewStatus.tone
             )}">${escapeHtml(reviewStatus.label)}</span>
           </td>
-          <td>${renderProgress(record)}</td>
-          <td>${escapeHtml(record.classLabel || '—')}</td>
+          <td class="progress-cell">${renderProgress(record)}</td>
+          <td class="class-cell">${escapeHtml(record.classLabel || '—')}</td>
           <td class="comments-cell">${renderComment(record.comments)}</td>
           ${
             archived

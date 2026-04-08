@@ -797,6 +797,14 @@ td {
   padding-right: 6px;
 }
 
+.progress-cell {
+  padding-right: 22px;
+}
+
+.class-cell {
+  padding-left: 18px;
+}
+
 tbody td:first-child {
   border-top-left-radius: 18px;
   border-bottom-left-radius: 18px;
