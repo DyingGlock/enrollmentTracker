@@ -9,6 +9,8 @@
     "test": "node --test",
     "db:migrate": "node src/scripts/migrate.js",
     "build": "node src/scripts/build.js",
+    "qa": "bash -lc \"NODE_ENV=production npm run build && NODE_ENV=production npm run start\"",
+    "prod": "bash -lc \"NODE_ENV=production npm run build && NODE_ENV=production npm run start:built\"",
     "start:built": "node -e \"const m=require('./build/manifest.json'); if(!m.builtFile) { console.error('No build found. Run: npm run build'); process.exit(1);} require('child_process').spawn(process.execPath,[m.builtFile],{stdio:'inherit'});\""
   },
   "engines": {
