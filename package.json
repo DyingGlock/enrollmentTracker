@@ -1,0 +1,32 @@
+{
+  "name": "enrollment-tracker",
+  "version": "1.0.0",
+  "description": "Trello-backed enrollment tracker website",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "db:migrate": "node src/scripts/migrate.js",
+    "build": "node src/scripts/build.js",
+    "start:built": "node -e \"const m=require('./build/manifest.json'); if(!m.builtFile) { console.error('No build found. Run: npm run build'); process.exit(1);} require('child_process').spawn(process.execPath,[m.builtFile],{stdio:'inherit'});\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "trello",
+    "webhook",
+    "postgres"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.0",
+    "pg": "^8.13.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "javascript-obfuscator": "^5.4.1"
+  }
+}

@@ -1,0 +1,63 @@
+const ACTIVE_LIST_NAMES = [
+  'Pending',
+  'Phase 1 - Profile Screening',
+  'Phase 2 - Application Reading',
+  'Phase 3 - Background Check',
+  'Phase 4 - Administration Review',
+  'Passed',
+  'Failed',
+  'On Hold',
+];
+
+const STATUS_LABELS = {
+  Pending: 'Pending',
+  'Phase 1 - Profile Screening': 'Phase 1',
+  'Phase 2 - Application Reading': 'Phase 2',
+  'Phase 3 - Background Check': 'Phase 3',
+  'Phase 4 - Administration Review': 'Phase 4',
+  Passed: 'Passed',
+  Failed: 'Failed',
+  'On Hold': 'On Hold',
+};
+
+const INFO_SECTIONS = [
+  {
+    title: 'Phase 1',
+    body:
+      'Phase 1 consists of a general profile check.\nIf you failed this phase, due to confidentiality, the reason will not be disclosed. This is to protect our screening process and prevent alternate accounts from getting in.\nIf you fail this stage, do not reapply.',
+  },
+  {
+    title: 'Phase 2',
+    body:
+      "Phase 2 consists of the application's reading.\nApplicants fail this stage due to the quality (or lack thereof) of someone's application.\nCommon reasons include poor grammar/spelling, lack of detail/effort, and lack of knowledge (some questions are knowledge-based).\nReasons for failing this stage will be disclosed to encourage improvement upon reapplying.\nIf you fail this stage, take into consideration the feedback and reapply.",
+  },
+  {
+    title: 'Phase 3',
+    body:
+      'Phase 3 consists of a background check.\nEven though you may think you have an impeccable background, that might not be the case.\nReasons for failing the background check will not be disclosed.\nIf you fail this phase, do not reapply.',
+  },
+  {
+    title: 'Phase 4',
+    body:
+      'Phase 4 consists of an administrative review.\nInformation discovered in the application screening process will be reviewed by the POST Administration and select individuals to determine whether or not the applicant possesses the necessary qualities required to be a POST Cadet.\nIf you failed this phase, do not reapply.',
+  },
+];
+
+function normalizeStatusLabel(status) {
+  return STATUS_LABELS[status] || status || 'Unknown';
+}
+
+function getTrackerConfig() {
+  return {
+    activeListNames: ACTIVE_LIST_NAMES,
+    infoSections: INFO_SECTIONS,
+  };
+}
+
+module.exports = {
+  ACTIVE_LIST_NAMES,
+  STATUS_LABELS,
+  INFO_SECTIONS,
+  normalizeStatusLabel,
+  getTrackerConfig,
+};
