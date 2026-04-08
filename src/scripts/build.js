@@ -191,6 +191,16 @@ async function main() {
   fs.writeFileSync(outFile, obfuscated, 'utf8');
   fs.rmSync(tempFile, { force: true });
 
+  // Runtime migrations: the bundled server resolves migrations relative to __dirname,
+  // which becomes dist/ at runtime. Copy SQL migrations into dist/migrations.
+  const migrationsSrcDir = path.join(projectRoot, 'src', 'db', 'migrations');
+  const migrationsOutDir = path.join(distDir, 'migrations');
+  if (fs.existsSync(migrationsSrcDir)) {
+    fs.mkdirSync(migrationsOutDir, { recursive: true });
+    // Node 18+ supports cpSync.
+    fs.cpSync(migrationsSrcDir, migrationsOutDir, { recursive: true });
+  }
+
   // Clean any previously recorded built file if it differs (prevents artifact accumulation).
   if (manifest.builtFile && manifest.builtFile !== path.relative(projectRoot, outFile)) {
     const old = path.join(projectRoot, manifest.builtFile);
