@@ -16,14 +16,19 @@ const app = express();
 app.set('trust proxy', 1);
 
 /** No body parsing at app level; trello webhook route adds its own JSON parser with limit */
-// Serve ONLY built browser assets from dist/ (do not serve src/public in production).
-// Note: `npm run build` generates dist/public/* and records stable filenames in build/manifest.json.
+const isProduction = process.env.NODE_ENV === 'production';
+const staticDir = isProduction
+  ? path.join(__dirname, '..', 'dist', 'public')
+  : path.join(__dirname, 'public');
+
+// In dev, serve source assets (src/public) so changes show immediately.
+// In production, serve built/obfuscated assets from dist/public.
 app.use(
   '/static',
-  express.static(path.join(__dirname, '..', 'dist', 'public'), {
+  express.static(staticDir, {
     fallthrough: false,
     index: false,
-    maxAge: '7d',
+    maxAge: isProduction ? '7d' : 0,
   })
 );
 

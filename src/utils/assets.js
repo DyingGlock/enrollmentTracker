@@ -24,6 +24,17 @@ function tryReadManifest() {
  * @returns {{ trackerCssHref: string, trackerJsSrc: string, logoPngHref: string, faviconHref: string }}
  */
 function getPublicAssetUrls() {
+  // In development, always use the canonical source filenames.
+  // `src/app.js` mounts `/static` to `src/public`, so these resolve correctly.
+  if (process.env.NODE_ENV !== 'production') {
+    return {
+      trackerCssHref: '/static/tracker.css',
+      trackerJsSrc: '/static/tracker.js',
+      logoPngHref: '/static/post%20loogo.png',
+      faviconHref: '/static/favicon.svg',
+    };
+  }
+
   const manifest = tryReadManifest();
   const assets = manifest?.public?.assets || {};
 
