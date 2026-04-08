@@ -881,6 +881,10 @@ tbody tr:hover td {
   white-space: nowrap;
 }
 
+.progressColumn {
+  padding-right: 6px;
+}
+
 .progressBubble {
   display: inline-flex;
   align-items: center;
