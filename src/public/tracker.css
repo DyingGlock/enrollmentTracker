@@ -778,8 +778,8 @@ th {
 }
 
 .status-heading {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 td {
@@ -793,8 +793,8 @@ td {
 }
 
 .status-cell {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 6px;
+  padding-right: 6px;
 }
 
 tbody td:first-child {
@@ -876,8 +876,9 @@ tbody tr:hover td {
 
 .progressTrail {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .progressBubble {
