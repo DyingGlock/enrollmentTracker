@@ -2,5 +2,14 @@
   "entry": "src/server.js",
   "outDir": "dist",
   "outFileBase": "Jd54EqVuFF9YGHlsWh1DicfZ",
-  "builtFile": "dist/Jd54EqVuFF9YGHlsWh1DicfZ.js"
+  "builtFile": "dist/Jd54EqVuFF9YGHlsWh1DicfZ.js",
+  "public": {
+    "baseDir": "dist/public",
+    "assets": {
+      "trackerCss": "YX5f7NaYQKqi0ShKbDW6DZGh.css",
+      "trackerJs": "tRpj5MEXNvGFO4Kq6NEKY15w.js",
+      "logoPng": "TPlcECBqPI3dsypdTX7BeS0e.png",
+      "faviconSvg": "EtPiYI0l2h8d5h9eypCqcwCE.svg"
+    }
+  }
 }

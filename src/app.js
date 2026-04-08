@@ -8,6 +8,7 @@ const path = require('path');
 const trackerRouter = require('./routes/tracker');
 const trelloWebhookRouter = require('./routes/trelloWebhook');
 const logger = require('./utils/logger');
+const { getPublicAssetUrls } = require('./utils/assets');
 
 const app = express();
 
@@ -15,9 +16,22 @@ const app = express();
 app.set('trust proxy', 1);
 
 /** No body parsing at app level; trello webhook route adds its own JSON parser with limit */
-app.use('/static', express.static(path.join(__dirname, 'public')));
+// Serve ONLY built browser assets from dist/ (do not serve src/public in production).
+// Note: `npm run build` generates dist/public/* and records stable filenames in build/manifest.json.
+app.use(
+  '/static',
+  express.static(path.join(__dirname, '..', 'dist', 'public'), {
+    fallthrough: false,
+    index: false,
+    maxAge: '7d',
+  })
+);
+
 app.get('/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'post loogo.png'));
+  // Redirect legacy favicon path to the built favicon asset.
+  // (Tracker page itself uses the manifest URL; this is for compatibility.)
+  const assets = getPublicAssetUrls();
+  res.redirect(302, assets.faviconHref);
 });
 
 function sendHealth(req, res) {

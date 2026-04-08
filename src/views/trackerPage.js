@@ -24,6 +24,7 @@ function summarizeInfoBody(body) {
 }
 
 const PHASES = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
+const { getPublicAssetUrls } = require('../utils/assets');
 
 function getReviewStatus(record) {
   if (record.rawStatus === 'Passed') {
@@ -251,6 +252,7 @@ function renderTrackerPage({
   records,
   archived,
 }) {
+  const assets = getPublicAssetUrls();
   const activeStatusMap = archived
     ? null
     : currentClass.statusCounts.reduce((accumulator, item) => {
@@ -326,17 +328,17 @@ function renderTrackerPage({
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
-    <link rel="icon" href="/favicon.ico" type="image/png" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/png" />
-    <link rel="apple-touch-icon" href="/static/post%20loogo.png" />
-    <link rel="stylesheet" href="/static/tracker.css" />
-    <script defer src="/static/tracker.js"></script>
+    <link rel="icon" href="${escapeHtml(assets.faviconHref)}" type="image/svg+xml" />
+    <link rel="shortcut icon" href="${escapeHtml(assets.faviconHref)}" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="${escapeHtml(assets.logoPngHref)}" />
+    <link rel="stylesheet" href="${escapeHtml(assets.trackerCssHref)}" />
+    <script defer src="${escapeHtml(assets.trackerJsSrc)}"></script>
   </head>
   <body data-live-refresh-ms="60000">
     <section class="mobileNotice" aria-labelledby="mobile-notice-title">
       <div class="mobileNotice__card">
         <span class="mobileNotice__logo">
-          <img src="/static/post%20loogo.png" alt="POST logo" />
+          <img src="${escapeHtml(assets.logoPngHref)}" alt="POST logo" />
         </span>
         <p class="mobileNotice__kicker">Firestone POST Enrollment Tracker</p>
         <h1 class="mobileNotice__title" id="mobile-notice-title">
@@ -354,7 +356,7 @@ function renderTrackerPage({
       <header class="topbar">
         <a href="/" class="brandLink">
           <span class="brandLogo">
-            <img src="/static/post%20loogo.png" alt="POST logo" />
+            <img src="${escapeHtml(assets.logoPngHref)}" alt="POST logo" />
           </span>
           <span class="brandCopy">
             <span class="brandKicker">Firestone POST</span>
