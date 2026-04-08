@@ -30,63 +30,40 @@ function initializeApplicationSearch() {
 }
 
 function initializeArchiveFilter() {
-  const select = document.querySelector('[data-archive-class-filter]');
-  if (!select) return;
-
-  const targetTableId = select.getAttribute('data-target-table');
-  const table = targetTableId ? document.getElementById(targetTableId) : null;
+  const table = document.getElementById('archived-applications-table');
   if (!table) return;
 
-  const rows = Array.from(table.querySelectorAll('tbody tr[data-class]'));
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
   const emptyState = document.querySelector('[data-archive-empty]');
   const visibleCount = document.querySelector('[data-archive-visible-count]');
   const statApplications = document.querySelector('[data-archive-stat="applications"]');
   const statFailed = document.querySelector('[data-archive-stat="failed"]');
   const statPassed = document.querySelector('[data-archive-stat="passed"]');
 
-  const applyFilter = () => {
-    const selectedClass = String(select.value || '').trim().toLowerCase();
+  const compute = () => {
     let applications = 0;
     let failed = 0;
     let passed = 0;
 
     rows.forEach((row) => {
-      const rowClass = String(row.getAttribute('data-class') || '').trim().toLowerCase();
-      const matches = !selectedClass || rowClass === selectedClass;
-      row.hidden = !matches;
-
-      if (!matches) return;
-
+      if (row.hidden) return;
       applications += 1;
-
       const status = String(row.getAttribute('data-status') || '').trim().toLowerCase();
       if (status === 'failed') failed += 1;
       if (status === 'passed') passed += 1;
     });
 
-    if (visibleCount) {
-      visibleCount.textContent = String(applications);
-    }
-
-    if (statApplications) {
-      statApplications.textContent = String(applications);
-    }
-
-    if (statFailed) {
-      statFailed.textContent = String(failed);
-    }
-
-    if (statPassed) {
-      statPassed.textContent = String(passed);
-    }
+    if (visibleCount) visibleCount.textContent = String(applications);
+    if (statApplications) statApplications.textContent = String(applications);
+    if (statFailed) statFailed.textContent = String(failed);
+    if (statPassed) statPassed.textContent = String(passed);
 
     if (emptyState) {
       emptyState.hidden = rows.length === 0 || applications !== 0;
     }
   };
 
-  select.addEventListener('change', applyFilter);
-  applyFilter();
+  compute();
 }
 
 function initializeLiveRefresh() {

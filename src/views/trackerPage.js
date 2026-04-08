@@ -224,8 +224,6 @@ function renderRows(records, archived) {
           `${record.name || ''}`
             .toLowerCase()
             .trim()
-        )}" data-class="${escapeHtml(
-          String(record.classNumber || record.classLabel || '').toLowerCase().trim()
         )}" data-status="${escapeHtml(String(reviewStatus.label || '').toLowerCase())}">
           <td class="primary-cell">
             ${renderApplicantName(record.name)}
@@ -236,7 +234,6 @@ function renderRows(records, archived) {
             )}">${escapeHtml(reviewStatus.label)}</span>
           </td>
           <td class="progress-cell">${renderProgress(record)}</td>
-          <td class="class-cell">${escapeHtml(record.classLabel || '—')}</td>
           <td class="comments-cell">${renderComment(record.comments)}</td>
           ${
             archived
@@ -268,25 +265,6 @@ function renderTrackerPage({
         accumulator[item.status] = item.count;
         return accumulator;
       }, {});
-
-  const archivedClasses = archived
-    ? Array.from(
-        new Set(
-          records
-            .map((record) => ({
-              classLabel: String(record.classLabel || '').trim(),
-              classNumber: String(record.classNumber || '').trim(),
-            }))
-            .filter((item) => item.classLabel || item.classNumber)
-            .map((item) => `${item.classNumber}|||${item.classLabel}`)
-        )
-      )
-        .map((item) => {
-          const [classNumber, classLabel] = item.split('|||');
-          return { classNumber, classLabel };
-        })
-        .sort((left, right) => Number(right.classNumber || 0) - Number(left.classNumber || 0))
-    : [];
 
   const archivedStats = archived
     ? {
@@ -464,26 +442,6 @@ function renderTrackerPage({
                 ? `
             <div class="tableToolbar tableToolbar--archive">
               <div class="archiveControls">
-                <label class="archiveFilter" for="archive-class-filter">
-                  <span class="archiveFilter__label">Class Filter</span>
-                  <select
-                    id="archive-class-filter"
-                    class="archiveFilter__select"
-                    data-archive-class-filter
-                    data-target-table="archived-applications-table"
-                  >
-                    <option value="">All classes</option>
-                    ${archivedClasses
-                      .map(
-                        (item) => `
-                      <option value="${escapeHtml(
-                        String(item.classNumber || item.classLabel).toLowerCase()
-                      )}">${escapeHtml(item.classLabel || `Class ${item.classNumber}`)}</option>
-                    `
-                      )
-                      .join('')}
-                  </select>
-                </label>
                 <div class="archiveRecordsPill">
                   <span data-archive-visible-count>${escapeHtml(records.length)}</span> records shown
                 </div>
@@ -536,7 +494,6 @@ function renderTrackerPage({
                   <col class="col-application" />
                   <col class="col-status" />
                   <col class="col-progress" />
-                  <col class="col-class" />
                   <col class="col-comments" />
                   ${archived ? '<col class="col-archived" />' : ''}
                 </colgroup>
@@ -545,7 +502,6 @@ function renderTrackerPage({
                     <th>Application</th>
                     <th class="status-heading">Status</th>
                     <th>Progress</th>
-                    <th>Class</th>
                     <th>Comments</th>
                     ${archived ? '<th>Archived</th>' : ''}
                   </tr>
