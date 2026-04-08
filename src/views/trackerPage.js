@@ -192,7 +192,16 @@ function renderComment(value) {
   }
 
   const text = String(value);
-  return text.trim() ? escapeHtml(text) : '';
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+
+  // Render a truncated display but preserve full text for hover tooltip.
+  // Uses the existing tooltip system (data-info-tooltip).
+  return `
+    <span class="commentText" data-info-tooltip="${escapeHtml(trimmed)}">
+      ${escapeHtml(trimmed)}
+    </span>
+  `;
 }
 
 function renderRows(records, archived) {
