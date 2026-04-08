@@ -100,6 +100,8 @@ function initializeInfoTooltip() {
   const cards = Array.from(document.querySelectorAll('[data-info-tooltip]'));
   if (!tooltip || !cards.length) return;
 
+  tooltip.hidden = false;
+
   const offsetX = 4;
   const offsetY = 4;
 
@@ -123,14 +125,14 @@ function initializeInfoTooltip() {
   cards.forEach((card) => {
     card.addEventListener('mouseenter', (event) => {
       tooltip.textContent = card.getAttribute('data-info-tooltip') || '';
-      tooltip.hidden = false;
+      tooltip.classList.add('infoTooltip--visible');
       moveTooltip(event);
     });
 
     card.addEventListener('mousemove', moveTooltip);
 
     card.addEventListener('mouseleave', () => {
-      tooltip.hidden = true;
+      tooltip.classList.remove('infoTooltip--visible');
       tooltip.textContent = '';
     });
   });

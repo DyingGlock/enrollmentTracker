@@ -564,6 +564,14 @@ a {
   pointer-events: none;
   backdrop-filter: blur(16px);
   will-change: top, left;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.infoTooltip--visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .tableCard {
@@ -967,7 +975,6 @@ tbody tr:hover td {
   overflow: hidden;
   max-height: calc(1em * 1.7 * 1);
   text-overflow: ellipsis;
-  cursor: help;
 }
 
 .empty-row {
