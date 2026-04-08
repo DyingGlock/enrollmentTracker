@@ -798,11 +798,11 @@ td {
 }
 
 .progress-cell {
-  padding-right: 22px;
+  padding-right: 40px;
 }
 
 .class-cell {
-  padding-left: 18px;
+  padding-left: 26px;
 }
 
 tbody td:first-child {

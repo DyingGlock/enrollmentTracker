@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "dev": "bash -lc \"npm run build && node --watch src/server.js\"",
     "test": "node --test",
     "db:migrate": "node src/scripts/migrate.js",
     "build": "node src/scripts/build.js",
