@@ -159,9 +159,26 @@ function initializeInfoTooltip() {
   });
 }
 
+function initializeCommentTooltips() {
+  const candidates = Array.from(document.querySelectorAll('.commentText[data-info-tooltip]'));
+  if (!candidates.length) return;
+
+  candidates.forEach((node) => {
+    // Only keep tooltip if the visible text is actually truncated.
+    // For line-clamp, scrollHeight > clientHeight is a good signal.
+    const truncated =
+      node.scrollWidth > node.clientWidth || node.scrollHeight > node.clientHeight;
+    if (!truncated) {
+      node.removeAttribute('data-info-tooltip');
+      node.style.cursor = 'default';
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initializeApplicationSearch();
   initializeArchiveFilter();
   initializeLiveRefresh();
   initializeInfoTooltip();
+  initializeCommentTooltips();
 });

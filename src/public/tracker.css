@@ -759,7 +759,7 @@ table {
 }
 
 .col-comments {
-  width: 28%;
+  width: 18%;
 }
 
 .col-archived {
@@ -955,15 +955,15 @@ tbody tr:hover td {
   line-height: 1.7;
   white-space: normal;
   word-break: break-word;
-  min-width: 260px;
+  min-width: 200px;
 }
 
 .commentText {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   overflow: hidden;
-  max-height: calc(1em * 1.7 * 2);
+  max-height: calc(1em * 1.7 * 1);
   text-overflow: ellipsis;
   cursor: help;
 }
@@ -1007,7 +1007,7 @@ tbody tr:hover td {
   }
 
   .col-comments {
-    width: 30%;
+    width: 22%;
   }
 }
 
