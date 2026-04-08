@@ -751,7 +751,7 @@ table {
 }
 
 .col-progress {
-  width: 22%;
+  width: 26%;
 }
 
 .col-class {
@@ -759,7 +759,7 @@ table {
 }
 
 .col-comments {
-  width: 38%;
+  width: 34%;
 }
 
 .col-archived {
@@ -778,8 +778,8 @@ th {
 }
 
 .status-heading {
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 td {
@@ -793,8 +793,8 @@ td {
 }
 
 .status-cell {
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 .progress-cell {
@@ -884,9 +884,15 @@ tbody tr:hover td {
 
 .progressTrail {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
-  white-space: nowrap;
+}
+
+@media (min-width: 1200px) {
+  .progressTrail {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
 }
 
 .progressColumn {
@@ -987,11 +993,11 @@ tbody tr:hover td {
   }
 
   .col-progress {
-    width: 21%;
+    width: 25%;
   }
 
   .col-comments {
-    width: 37%;
+    width: 33%;
   }
 }
 
