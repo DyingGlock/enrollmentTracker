@@ -751,7 +751,11 @@ table {
 }
 
 .col-progress {
-  width: 34%;
+  width: 31%;
+}
+
+.col-class {
+  width: 7%;
 }
 
 .col-comments {
@@ -795,6 +799,11 @@ td {
 
 .progress-cell {
   padding-right: 40px;
+}
+
+.class-cell {
+  color: var(--slate-300);
+  white-space: nowrap;
 }
 
 
@@ -996,7 +1005,11 @@ tbody tr:hover td {
   }
 
   .col-progress {
-    width: 33%;
+    width: 30%;
+  }
+
+  .col-class {
+    width: 8%;
   }
 
   .col-comments {

@@ -204,6 +204,17 @@ function renderComment(value) {
   `;
 }
 
+function renderClassNumber(record) {
+  const direct = record?.classNumber;
+  if (direct !== null && direct !== undefined && String(direct).trim()) {
+    return escapeHtml(String(direct).trim());
+  }
+
+  const label = String(record?.classLabel || '').trim();
+  const match = label.match(/(\d+)/);
+  return match ? escapeHtml(match[1]) : '—';
+}
+
 function renderRows(records, archived) {
   if (!records.length) {
     return `
@@ -234,6 +245,7 @@ function renderRows(records, archived) {
             )}">${escapeHtml(reviewStatus.label)}</span>
           </td>
           <td class="progress-cell">${renderProgress(record)}</td>
+          <td class="class-cell">${renderClassNumber(record)}</td>
           <td class="comments-cell">${renderComment(record.comments)}</td>
           ${
             archived
@@ -494,6 +506,7 @@ function renderTrackerPage({
                   <col class="col-application" />
                   <col class="col-status" />
                   <col class="col-progress" />
+                  <col class="col-class" />
                   <col class="col-comments" />
                   ${archived ? '<col class="col-archived" />' : ''}
                 </colgroup>
@@ -502,6 +515,7 @@ function renderTrackerPage({
                     <th>Application</th>
                     <th class="status-heading">Status</th>
                     <th>Progress</th>
+                    <th>Class</th>
                     <th>Comments</th>
                     ${archived ? '<th>Archived</th>' : ''}
                   </tr>
