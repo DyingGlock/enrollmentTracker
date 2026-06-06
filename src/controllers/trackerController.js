@@ -2,6 +2,7 @@ const { getTrackerConfig } = require('../config/tracker');
 const applications = require('../repositories/applications');
 const sync = require('../services/sync');
 const { renderTrackerPage } = require('../views/trackerPage');
+const { getPublicAssetUrls } = require('../utils/assets');
 
 function getRequestOrigin(req) {
   return `${req.protocol}://${req.get('host')}`;
@@ -28,13 +29,15 @@ async function renderActivePage(req, res, next) {
       applications.getActiveApplications(),
     ]);
 
+    const assets = getPublicAssetUrls();
+
     res.status(200).send(
       renderTrackerPage({
         title: `${currentClass.currentClass} Enrollment Tracker`,
         heading: currentClass.currentClass,
         subtitle: 'Active enrollment applications mirrored from Trello.',
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
-        imageUrl: `${getRequestOrigin(req)}/static/post%20loogo.png`,
+        imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,
         currentClass,
         infoSections: getTrackerConfig().infoSections,
         records,
@@ -53,13 +56,15 @@ async function renderArchivedPage(req, res, next) {
       applications.getArchivedApplications(),
     ]);
 
+    const assets = getPublicAssetUrls();
+
     res.status(200).send(
       renderTrackerPage({
         title: `${currentClass.currentClass} Archived Applications`,
         heading: 'Archived Applications',
         subtitle: 'Applications archived after leaving the tracked Trello enrollment workflow.',
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
-        imageUrl: `${getRequestOrigin(req)}/static/post%20loogo.png`,
+        imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,
         currentClass,
         infoSections: [],
         records,

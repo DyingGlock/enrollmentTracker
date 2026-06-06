@@ -21,6 +21,29 @@ function tryReadManifest() {
 }
 
 /**
+ * Strip repeated extensions from a manifest base name.
+ * @param {string} value
+ * @param {string} extNoDot
+ * @returns {string}
+ */
+function stripRepeatedExtension(value, extNoDot) {
+  const re = new RegExp(`(\\.${extNoDot})+$`, 'i');
+  return String(value || '').replace(re, '');
+}
+
+/**
+ * @param {string|undefined} baseName
+ * @param {string} extNoDot
+ * @param {string} fallbackPath
+ * @returns {string}
+ */
+function buildStaticAssetPath(baseName, extNoDot, fallbackPath) {
+  if (!baseName) return fallbackPath;
+  const normalized = stripRepeatedExtension(baseName, extNoDot);
+  return `/static/${normalized}.${extNoDot}`;
+}
+
+/**
  * @returns {{ trackerCssHref: string, trackerJsSrc: string, logoPngHref: string, faviconHref: string }}
  */
 function getPublicAssetUrls() {
@@ -38,9 +61,21 @@ function getPublicAssetUrls() {
   const manifest = tryReadManifest();
   const assets = manifest?.public?.assets || {};
 
-  const trackerCss = assets.trackerCss ? `/static/${assets.trackerCss}` : '/static/tracker.css';
-  const trackerJs = assets.trackerJs ? `/static/${assets.trackerJs}` : '/static/tracker.js';
-  const logoPng = assets.logoPng ? `/static/${assets.logoPng}` : '/static/post%20loogo.png';
+  const trackerCss = buildStaticAssetPath(
+    assets.trackerCss,
+    'css',
+    '/static/tracker.css'
+  );
+  const trackerJs = buildStaticAssetPath(
+    assets.trackerJs,
+    'js',
+    '/static/tracker.js'
+  );
+  const logoPng = buildStaticAssetPath(
+    assets.logoPng,
+    'png',
+    '/static/post%20loogo.png'
+  );
   // Favicon uses the same logo PNG.
   const favicon = logoPng;
 

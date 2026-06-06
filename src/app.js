@@ -17,9 +17,10 @@ app.set('trust proxy', 1);
 
 /** No body parsing at app level; trello webhook route adds its own JSON parser with limit */
 const isProduction = process.env.NODE_ENV === 'production';
+const projectRoot = path.join(__dirname, '..');
 const staticDir = isProduction
-  ? path.join(__dirname, '..', 'dist', 'public')
-  : path.join(__dirname, 'public');
+  ? path.join(projectRoot, 'dist', 'public')
+  : path.join(projectRoot, 'src', 'public');
 
 // In dev, serve source assets (src/public) so changes show immediately.
 // In production, serve built/obfuscated assets from dist/public.
