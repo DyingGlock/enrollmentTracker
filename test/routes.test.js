@@ -1,7 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const path = require('node:path');
 
 const app = require('../src/app');
+const { findManifestPath, getPublicAssetUrls } = require('../src/utils/assets');
 
 async function withServer(run) {
   const server = app.listen(0);
@@ -154,4 +156,31 @@ test('unknown routes still return the 404 payload', async () => {
       message: 'Not found',
     });
   });
+});
+
+test('production assets resolve from source and bundled directory layouts', () => {
+  const projectRoot = path.resolve(__dirname, '..');
+  const expectedManifest = path.join(projectRoot, 'build', 'manifest.json');
+
+  assert.equal(
+    findManifestPath(path.join(projectRoot, 'src', 'utils'), projectRoot),
+    expectedManifest
+  );
+  assert.equal(
+    findManifestPath(path.join(projectRoot, 'dist'), projectRoot),
+    expectedManifest
+  );
+
+  const previousNodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+
+  try {
+    const assets = getPublicAssetUrls();
+    assert.match(assets.trackerCssHref, /^\/static\/[A-Za-z0-9]+\.css$/);
+    assert.match(assets.trackerJsSrc, /^\/static\/[A-Za-z0-9]+\.js$/);
+    assert.match(assets.logoPngHref, /^\/static\/[A-Za-z0-9]+\.png$/);
+  } finally {
+    if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previousNodeEnv;
+  }
 });

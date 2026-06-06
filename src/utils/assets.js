@@ -8,13 +8,34 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * Locate the build manifest from either the source layout (`src/utils`) or the
+ * bundled layout (`dist`).
+ * @param {string} moduleDir
+ * @param {string} cwd
+ * @returns {string|null}
+ */
+function findManifestPath(moduleDir = __dirname, cwd = process.cwd()) {
+  const candidates = [
+    path.join(moduleDir, '..', '..', 'build', 'manifest.json'),
+    path.join(moduleDir, '..', 'build', 'manifest.json'),
+    path.join(cwd, 'build', 'manifest.json'),
+  ];
+
+  for (const candidate of new Set(candidates.map((p) => path.resolve(p)))) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+
+  return null;
+}
+
+/**
  * @returns {any|null}
  */
 function tryReadManifest() {
   try {
-    const p = path.join(__dirname, '..', '..', 'build', 'manifest.json');
-    if (!fs.existsSync(p)) return null;
-    return JSON.parse(fs.readFileSync(p, 'utf8'));
+    const manifestPath = findManifestPath();
+    if (!manifestPath) return null;
+    return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   } catch (_) {
     return null;
   }
@@ -87,5 +108,4 @@ function getPublicAssetUrls() {
   };
 }
 
-module.exports = { getPublicAssetUrls };
-
+module.exports = { findManifestPath, getPublicAssetUrls };
