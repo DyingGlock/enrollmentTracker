@@ -35,7 +35,6 @@ async function renderActivePage(req, res, next) {
       renderTrackerPage({
         title: `${currentClass.currentClass} Enrollment Tracker`,
         heading: currentClass.currentClass,
-        subtitle: 'Active enrollment applications mirrored from Trello.',
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
         imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,
         currentClass,
@@ -62,7 +61,6 @@ async function renderArchivedPage(req, res, next) {
       renderTrackerPage({
         title: `${currentClass.currentClass} Archived Applications`,
         heading: 'Archived Applications',
-        subtitle: 'Applications archived after leaving the tracked Trello enrollment workflow.',
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
         imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,
         currentClass,

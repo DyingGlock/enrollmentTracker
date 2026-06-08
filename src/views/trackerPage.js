@@ -24,6 +24,7 @@ function summarizeInfoBody(body) {
 }
 
 const PHASES = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
+const { SITE_META_DESCRIPTION } = require('../config/tracker');
 const { getPublicAssetUrls } = require('../utils/assets');
 
 function getReviewStatus(record) {
@@ -262,7 +263,6 @@ function renderRows(records, archived) {
 function renderTrackerPage({
   title,
   heading,
-  subtitle,
   pageUrl,
   imageUrl,
   currentClass,
@@ -313,16 +313,16 @@ function renderTrackerPage({
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
-    <meta name="description" content="${escapeHtml(subtitle)}" />
+    <meta name="description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="${escapeHtml(title)}" />
-    <meta property="og:description" content="${escapeHtml(subtitle)}" />
+    <meta property="og:description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
     <meta property="og:url" content="${escapeHtml(pageUrl)}" />
     <meta property="og:image" content="${escapeHtml(imageUrl)}" />
     <meta property="og:image:alt" content="POST Enrollment Tracker logo" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
-    <meta name="twitter:description" content="${escapeHtml(subtitle)}" />
+    <meta name="twitter:description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
     <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -1,3 +1,6 @@
+const SITE_META_DESCRIPTION =
+  'An online tracker to view and track applications to the Firestone Peace Officer Standards and Training Academy.';
+
 const ACTIVE_LIST_NAMES = [
   'Pending',
   'Phase 1 - Profile Screening',
@@ -55,6 +58,7 @@ function getTrackerConfig() {
 }
 
 module.exports = {
+  SITE_META_DESCRIPTION,
   ACTIVE_LIST_NAMES,
   STATUS_LABELS,
   INFO_SECTIONS,
