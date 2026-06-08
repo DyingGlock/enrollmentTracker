@@ -101,6 +101,48 @@ async function fetchBoardCards(boardId) {
 }
 
 /**
+ * Fetch every board card (open and closed), paginating past the 1000-card limit.
+ * @param {string} boardId
+ * @returns {Promise<Array<object>>}
+ */
+async function fetchAllBoardCards(boardId) {
+  const cards = [];
+  let before = null;
+
+  for (;;) {
+    const query = {
+      filter: 'all',
+      fields: 'name,id,idList,closed,shortUrl,dateLastActivity',
+      customFieldItems: 'true',
+      limit: '1000',
+    };
+
+    if (before) {
+      query.before = before;
+    }
+
+    const batch = await trelloGet(
+      `/boards/${encodeURIComponent(boardId)}/cards`,
+      query
+    );
+
+    if (!batch.length) {
+      break;
+    }
+
+    cards.push(...batch);
+
+    if (batch.length < 1000) {
+      break;
+    }
+
+    before = batch[batch.length - 1].id;
+  }
+
+  return cards;
+}
+
+/**
  * Fetch custom field definitions for the board.
  * @param {string} boardId
  * @returns {Promise<Array<object>>}
@@ -169,6 +211,7 @@ module.exports = {
   fetchCardListActions,
   fetchBoardLists,
   fetchBoardCards,
+  fetchAllBoardCards,
   fetchBoardCustomFields,
   extractCustomFieldValue,
   buildCustomFieldMap,

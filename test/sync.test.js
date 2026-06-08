@@ -32,6 +32,29 @@ test('Passed list applications remain tracked as active', () => {
   );
 });
 
+test('board utility lists are excluded from application tracking', () => {
+  const utilityLists = [
+    'Questions',
+    'Old Questions',
+    'Blacklist',
+    'Settings',
+    'Information',
+  ];
+
+  for (const listName of utilityLists) {
+    assert.equal(
+      isApplicationCard(applicationCard, config, listName),
+      false,
+      `expected ${listName} to be ignored`
+    );
+    assert.equal(
+      isEnrollmentApplicationCard(applicationCard, listName, config),
+      false,
+      `expected ${listName} to be ignored`
+    );
+  }
+});
+
 test('class and board title cards are excluded from application tracking', () => {
   assert.equal(
     isApplicationCard(

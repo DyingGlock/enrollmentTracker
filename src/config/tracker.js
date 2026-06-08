@@ -11,6 +11,16 @@ const ACTIVE_LIST_NAMES = [
   'On Hold',
 ];
 
+const IGNORED_LIST_NAMES = [
+  'Questions',
+  'Old Questions',
+  'Blacklist',
+  'Settings',
+  'Information',
+];
+
+const TRACKED_APPLICANT_LIST_NAMES = [...ACTIVE_LIST_NAMES, 'Failed'];
+
 const STATUS_LABELS = {
   Pending: 'Pending',
   'Phase 1 - Profile Screening': 'Phase 1',
@@ -49,9 +59,19 @@ function normalizeStatusLabel(status) {
   return STATUS_LABELS[status] || status || 'Unknown';
 }
 
+function isIgnoredList(listName) {
+  return IGNORED_LIST_NAMES.includes(String(listName || '').trim());
+}
+
+function isTrackedApplicantList(listName) {
+  return TRACKED_APPLICANT_LIST_NAMES.includes(String(listName || '').trim());
+}
+
 function getTrackerConfig() {
   return {
     activeListNames: ACTIVE_LIST_NAMES,
+    ignoredListNames: IGNORED_LIST_NAMES,
+    trackedApplicantListNames: TRACKED_APPLICANT_LIST_NAMES,
     infoSections: INFO_SECTIONS,
   };
 }
@@ -59,8 +79,12 @@ function getTrackerConfig() {
 module.exports = {
   SITE_META_DESCRIPTION,
   ACTIVE_LIST_NAMES,
+  IGNORED_LIST_NAMES,
+  TRACKED_APPLICANT_LIST_NAMES,
   STATUS_LABELS,
   INFO_SECTIONS,
+  isIgnoredList,
+  isTrackedApplicantList,
   normalizeStatusLabel,
   getTrackerConfig,
 };

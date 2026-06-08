@@ -1,5 +1,5 @@
 const { getConfig } = require('../config/env');
-const { getTrackerConfig } = require('../config/tracker');
+const { getTrackerConfig, isIgnoredList } = require('../config/tracker');
 const logger = require('../utils/logger');
 const trello = require('./trello');
 const applications = require('../repositories/applications');
@@ -42,13 +42,15 @@ function isTrackedActiveList(listName) {
   return getTrackerConfig().activeListNames.includes(listName);
 }
 
-function isApplicationCard(card, config) {
+function isApplicationCard(card, config, listName = '') {
   const title = String(card?.name || '').trim();
   const cardId = String(card?.id || '').trim();
+  const normalizedListName = String(listName || '').trim();
 
   if (!cardId || !title) return false;
   if (cardId === config.TRELLO_CLASS_CARD_ID) return false;
   if (/enrollment exam for post class\s+\d+/i.test(title)) return false;
+  if (normalizedListName && isIgnoredList(normalizedListName)) return false;
   return true;
 }
 
@@ -133,7 +135,7 @@ async function reconcileBoard() {
   const inactiveApplicationCards = boardCards.filter((card) => {
     const listName = listMap.get(card.idList) || '';
     return (
-      isApplicationCard(card, config) &&
+      isApplicationCard(card, config, listName) &&
       !isEnrollmentApplicationCard(card, listName, config)
     );
   });
@@ -176,6 +178,10 @@ async function reconcileBoard() {
     config.TRELLO_BOARD_ID,
     activeCards.map((card) => card.id)
   );
+  const removedIgnored = await applications.deleteApplicationsOnIgnoredLists(
+    config.TRELLO_BOARD_ID,
+    getTrackerConfig().ignoredListNames
+  );
   const archived = archivedInactive + archivedMissing;
 
   logger.info('Board reconciliation completed', {
@@ -185,6 +191,7 @@ async function reconcileBoard() {
     activeCards: activeCards.length,
     upserted,
     archived,
+    removedIgnored,
   });
 
   return {
@@ -192,6 +199,7 @@ async function reconcileBoard() {
     activeCards: activeCards.length,
     upserted,
     archived,
+    removedIgnored,
     currentClass: detectedClassLabel,
   };
 }
@@ -205,13 +213,18 @@ async function syncCardById(cardId) {
     const card = await trello.fetchCard(cardId);
     const listName = listMap.get(card.idList) || '';
 
+    if (isIgnoredList(listName)) {
+      await applications.deleteApplicationByCardId(cardId);
+      return { action: 'removed', reason: 'ignored-list' };
+    }
+
     if (card.closed) {
       await applications.archiveApplicationByCardId(cardId);
       return { action: 'archived', reason: 'closed' };
     }
 
     if (!isEnrollmentApplicationCard(card, listName, config)) {
-      if (isApplicationCard(card, config)) {
+      if (isApplicationCard(card, config, listName)) {
         await applications.archiveApplication(
           await toApplicationRecord(
             card,

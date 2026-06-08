@@ -1,5 +1,9 @@
 const { query } = require('../db');
-const { normalizeStatusLabel } = require('../config/tracker');
+const {
+  IGNORED_LIST_NAMES,
+  TRACKED_APPLICANT_LIST_NAMES,
+  normalizeStatusLabel,
+} = require('../config/tracker');
 
 function mapRow(row) {
   return {
@@ -170,6 +174,36 @@ async function archiveApplicationByCardId(trelloCardId) {
   return result.rows[0] ? mapRow(result.rows[0]) : null;
 }
 
+async function deleteApplicationByCardId(trelloCardId) {
+  const result = await query(
+    `
+      DELETE FROM applications
+      WHERE trello_card_id = $1
+      RETURNING id
+    `,
+    [trelloCardId]
+  );
+
+  return result.rowCount;
+}
+
+async function deleteApplicationsOnIgnoredLists(
+  boardId,
+  ignoredListNames = IGNORED_LIST_NAMES
+) {
+  const result = await query(
+    `
+      DELETE FROM applications
+      WHERE board_id = $1
+        AND current_list_name = ANY($2::text[])
+      RETURNING id
+    `,
+    [boardId, ignoredListNames]
+  );
+
+  return result.rowCount;
+}
+
 async function archiveMissingActiveApplications(boardId, activeCardIds) {
   const result = await query(
     `
@@ -194,6 +228,7 @@ async function getActiveApplications() {
       SELECT *
       FROM applications
       WHERE is_archived = FALSE
+        AND current_list_name = ANY($1::text[])
       ORDER BY
         CASE current_list_name
           WHEN 'Pending' THEN 1
@@ -209,7 +244,8 @@ async function getActiveApplications() {
         class_number DESC NULLS LAST,
         updated_at_trello DESC NULLS LAST,
         name ASC
-    `
+    `,
+    [TRACKED_APPLICANT_LIST_NAMES]
   );
 
   return result.rows.map(mapRow);
@@ -221,8 +257,10 @@ async function getArchivedApplications() {
       SELECT *
       FROM applications
       WHERE is_archived = TRUE
+        AND current_list_name = ANY($1::text[])
       ORDER BY archived_at DESC NULLS LAST, updated_at_trello DESC NULLS LAST, name ASC
-    `
+    `,
+    [TRACKED_APPLICANT_LIST_NAMES]
   );
 
   return result.rows.map(mapRow);
@@ -234,9 +272,11 @@ async function getActiveStatusCounts() {
       SELECT current_list_name AS status, COUNT(*)::int AS count
       FROM applications
       WHERE is_archived = FALSE
+        AND current_list_name = ANY($1::text[])
       GROUP BY current_list_name
       ORDER BY current_list_name ASC
-    `
+    `,
+    [TRACKED_APPLICANT_LIST_NAMES]
   );
 
   return result.rows.map((row) => ({
@@ -249,6 +289,8 @@ module.exports = {
   upsertApplication,
   archiveApplication,
   archiveApplicationByCardId,
+  deleteApplicationByCardId,
+  deleteApplicationsOnIgnoredLists,
   archiveMissingActiveApplications,
   getActiveApplications,
   getArchivedApplications,

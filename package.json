@@ -1,6 +1,6 @@
 {
   "name": "enrollment-tracker",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Trello-backed enrollment tracker website",
   "main": "src/server.js",
   "scripts": {
@@ -8,6 +8,7 @@
     "dev": "node --watch src/server.js",
     "test": "node --test",
     "db:migrate": "node src/scripts/migrate.js",
+    "db:import-exam": "node src/scripts/importExamResults.js",
     "build": "node src/scripts/build.js",
     "qa": "bash -lc \"NODE_ENV=production npm run build && NODE_ENV=production npm run start\"",
     "prod": "bash -lc \"NODE_ENV=production npm run build && NODE_ENV=production npm run start:built\"",
