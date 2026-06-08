@@ -8,7 +8,6 @@ const ACTIVE_LIST_NAMES = [
   'Phase 3 - Background Check',
   'Phase 4 - Administration Review',
   'Passed',
-  'Failed',
   'On Hold',
 ];
 

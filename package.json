@@ -1,6 +1,6 @@
 {
   "name": "enrollment-tracker",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Trello-backed enrollment tracker website",
   "main": "src/server.js",
   "scripts": {

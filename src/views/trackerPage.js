@@ -293,10 +293,6 @@ function renderTrackerPage({
           <span class="commandMetric__label">Applications</span>
           <strong class="commandMetric__value">${escapeHtml(records.length)}</strong>
         </article>
-        <article class="commandMetric commandMetric--failed">
-          <span class="commandMetric__label">Failed</span>
-          <strong class="commandMetric__value">${escapeHtml(activeStatusMap.Failed || 0)}</strong>
-        </article>
         <article class="commandMetric commandMetric--hold">
           <span class="commandMetric__label">On Hold</span>
           <strong class="commandMetric__value">${escapeHtml(activeStatusMap['On Hold'] || 0)}</strong>

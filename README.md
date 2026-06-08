@@ -19,10 +19,9 @@ Tracked active lists:
 - `Phase 3 - Background Check`
 - `Phase 4 - Administration Review`
 - `Passed`
-- `Failed`
 - `On Hold`
 
-Cards that leave those lists, are deleted, or are closed are marked archived.
+Cards moved to `Failed`, that leave the tracked lists above, are deleted, or are closed are marked archived.
 
 ## Routes
 

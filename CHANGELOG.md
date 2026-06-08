@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-06-08
+
+### Changed
+
+- Cards moved to the Trello `Failed` list are now archived automatically instead of remaining on the active tracker.
+- Failed applicants appear on the archived page with their final `Failed` status preserved during sync and reconciliation.
+
+### Removed
+
+- Removed the Failed count from the active tracker summary banner.
+
 ## [1.0.3] - 2026-06-08
 
 ### Changed

@@ -89,6 +89,71 @@ async function upsertApplication(application) {
   return mapRow(result.rows[0]);
 }
 
+async function archiveApplication(application) {
+  const result = await query(
+    `
+      INSERT INTO applications (
+        trello_card_id,
+        board_id,
+        name,
+        class_label,
+        class_number,
+        attempt_number,
+        current_list_id,
+        current_list_name,
+        previous_list_id,
+        previous_list_name,
+        comments,
+        created_at_trello,
+        updated_at_trello,
+        is_archived,
+        archived_at,
+        last_synced_at,
+        raw_trello
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, TRUE, NOW(), NOW(), $14::jsonb
+      )
+      ON CONFLICT (trello_card_id) DO UPDATE SET
+        board_id = EXCLUDED.board_id,
+        name = EXCLUDED.name,
+        class_label = EXCLUDED.class_label,
+        class_number = EXCLUDED.class_number,
+        attempt_number = EXCLUDED.attempt_number,
+        current_list_id = EXCLUDED.current_list_id,
+        current_list_name = EXCLUDED.current_list_name,
+        previous_list_id = EXCLUDED.previous_list_id,
+        previous_list_name = EXCLUDED.previous_list_name,
+        comments = EXCLUDED.comments,
+        created_at_trello = EXCLUDED.created_at_trello,
+        updated_at_trello = EXCLUDED.updated_at_trello,
+        is_archived = TRUE,
+        archived_at = COALESCE(applications.archived_at, NOW()),
+        last_synced_at = NOW(),
+        raw_trello = EXCLUDED.raw_trello
+      RETURNING *
+    `,
+    [
+      application.cardId,
+      application.boardId,
+      application.name,
+      application.classLabel,
+      application.classNumber,
+      application.attemptNumber,
+      application.currentListId,
+      application.currentListName,
+      application.previousListId,
+      application.previousListName,
+      application.comments,
+      application.createdAt,
+      application.updatedAt,
+      JSON.stringify(application.rawTrello),
+    ]
+  );
+
+  return mapRow(result.rows[0]);
+}
+
 async function archiveApplicationByCardId(trelloCardId) {
   const result = await query(
     `
@@ -182,6 +247,7 @@ async function getActiveStatusCounts() {
 
 module.exports = {
   upsertApplication,
+  archiveApplication,
   archiveApplicationByCardId,
   archiveMissingActiveApplications,
   getActiveApplications,

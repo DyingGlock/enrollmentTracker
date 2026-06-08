@@ -42,15 +42,18 @@ function isTrackedActiveList(listName) {
   return getTrackerConfig().activeListNames.includes(listName);
 }
 
-function isEnrollmentApplicationCard(card, listName, config) {
+function isApplicationCard(card, config) {
   const title = String(card?.name || '').trim();
   const cardId = String(card?.id || '').trim();
 
-  if (!isTrackedActiveList(listName)) return false;
   if (!cardId || !title) return false;
   if (cardId === config.TRELLO_CLASS_CARD_ID) return false;
   if (/enrollment exam for post class\s+\d+/i.test(title)) return false;
   return true;
+}
+
+function isEnrollmentApplicationCard(card, listName, config) {
+  return isTrackedActiveList(listName) && isApplicationCard(card, config);
 }
 
 async function detectCurrentClassLabel() {
@@ -127,6 +130,13 @@ async function reconcileBoard() {
   const activeCards = boardCards.filter((card) =>
     isEnrollmentApplicationCard(card, listMap.get(card.idList) || '', config)
   );
+  const inactiveApplicationCards = boardCards.filter((card) => {
+    const listName = listMap.get(card.idList) || '';
+    return (
+      isApplicationCard(card, config) &&
+      !isEnrollmentApplicationCard(card, listName, config)
+    );
+  });
 
   let upserted = 0;
 
@@ -145,10 +155,28 @@ async function reconcileBoard() {
     upserted += 1;
   }
 
-  const archived = await applications.archiveMissingActiveApplications(
+  let archivedInactive = 0;
+
+  for (const card of inactiveApplicationCards) {
+    const listName = listMap.get(card.idList) || 'Unknown';
+    await applications.archiveApplication(
+      await toApplicationRecord(
+        card,
+        listName,
+        fieldMap,
+        config.TRELLO_BOARD_ID,
+        detectedClassLabel,
+        listMap
+      )
+    );
+    archivedInactive += 1;
+  }
+
+  const archivedMissing = await applications.archiveMissingActiveApplications(
     config.TRELLO_BOARD_ID,
     activeCards.map((card) => card.id)
   );
+  const archived = archivedInactive + archivedMissing;
 
   logger.info('Board reconciliation completed', {
     boardId: config.TRELLO_BOARD_ID,
@@ -177,9 +205,31 @@ async function syncCardById(cardId) {
     const card = await trello.fetchCard(cardId);
     const listName = listMap.get(card.idList) || '';
 
-    if (card.closed || !isEnrollmentApplicationCard(card, listName, config)) {
+    if (card.closed) {
       await applications.archiveApplicationByCardId(cardId);
-      return { action: 'archived', reason: card.closed ? 'closed' : 'inactive-list' };
+      return { action: 'archived', reason: 'closed' };
+    }
+
+    if (!isEnrollmentApplicationCard(card, listName, config)) {
+      if (isApplicationCard(card, config)) {
+        await applications.archiveApplication(
+          await toApplicationRecord(
+            card,
+            listName,
+            fieldMap,
+            config.TRELLO_BOARD_ID,
+            classLabel,
+            listMap
+          )
+        );
+        return {
+          action: 'archived',
+          reason: listName === 'Failed' ? 'failed' : 'inactive-list',
+        };
+      }
+
+      await applications.archiveApplicationByCardId(cardId);
+      return { action: 'archived', reason: 'inactive-list' };
     }
 
     await applications.upsertApplication(
@@ -251,6 +301,7 @@ module.exports = {
   parseCreatedAtFromTrelloId,
   getBoardMetadata,
   isTrackedActiveList,
+  isApplicationCard,
   isEnrollmentApplicationCard,
   detectCurrentClassLabel,
   getCurrentClassLabel,
