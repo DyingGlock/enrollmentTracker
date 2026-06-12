@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-06-13
+
+### Changed
+
+- Sync now only tracks cards with applicant-style titles (`username:userid`), excluding question templates and board utility cards regardless of list.
+- Trello list metadata includes closed lists so ignored-list detection works for cards on archived board lists.
+- Archived and active queries require both a tracked applicant list and a valid applicant card name.
+
+### Fixed
+
+- Reconciliation no longer re-imports utility-list cards every sync cycle, which had caused Questions, Blacklist, Settings, and other non-applicant records to appear on the archived tab.
+
 ## [1.0.5] - 2026-06-09
 
 ### Added

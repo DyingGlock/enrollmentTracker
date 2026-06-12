@@ -82,7 +82,7 @@ async function fetchCardListActions(cardId) {
  */
 async function fetchBoardLists(boardId) {
   return trelloGet(`/boards/${encodeURIComponent(boardId)}/lists`, {
-    filter: 'open',
+    filter: 'all',
     fields: 'name,closed',
   });
 }

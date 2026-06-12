@@ -1,5 +1,5 @@
 const { getConfig } = require('../config/env');
-const { getTrackerConfig, isIgnoredList } = require('../config/tracker');
+const { getTrackerConfig, isIgnoredList, looksLikeApplicantCardName } = require('../config/tracker');
 const logger = require('../utils/logger');
 const trello = require('./trello');
 const applications = require('../repositories/applications');
@@ -50,6 +50,7 @@ function isApplicationCard(card, config, listName = '') {
   if (!cardId || !title) return false;
   if (cardId === config.TRELLO_CLASS_CARD_ID) return false;
   if (/enrollment exam for post class\s+\d+/i.test(title)) return false;
+  if (!looksLikeApplicantCardName(title)) return false;
   if (normalizedListName && isIgnoredList(normalizedListName)) return false;
   return true;
 }
@@ -178,9 +179,8 @@ async function reconcileBoard() {
     config.TRELLO_BOARD_ID,
     activeCards.map((card) => card.id)
   );
-  const removedIgnored = await applications.deleteApplicationsOnIgnoredLists(
-    config.TRELLO_BOARD_ID,
-    getTrackerConfig().ignoredListNames
+  const removedIgnored = await applications.deleteUntrackedApplications(
+    config.TRELLO_BOARD_ID
   );
   const archived = archivedInactive + archivedMissing;
 
@@ -213,9 +213,12 @@ async function syncCardById(cardId) {
     const card = await trello.fetchCard(cardId);
     const listName = listMap.get(card.idList) || '';
 
-    if (isIgnoredList(listName)) {
+    if (
+      isIgnoredList(listName) ||
+      !looksLikeApplicantCardName(String(card.name || ''))
+    ) {
       await applications.deleteApplicationByCardId(cardId);
-      return { action: 'removed', reason: 'ignored-list' };
+      return { action: 'removed', reason: 'untracked-card' };
     }
 
     if (card.closed) {

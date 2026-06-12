@@ -59,6 +59,10 @@ function normalizeStatusLabel(status) {
   return STATUS_LABELS[status] || status || 'Unknown';
 }
 
+function looksLikeApplicantCardName(name) {
+  return /^[^:]+:\d+$/.test(String(name || '').trim());
+}
+
 function isIgnoredList(listName) {
   return IGNORED_LIST_NAMES.includes(String(listName || '').trim());
 }
@@ -85,6 +89,7 @@ module.exports = {
   INFO_SECTIONS,
   isIgnoredList,
   isTrackedApplicantList,
+  looksLikeApplicantCardName,
   normalizeStatusLabel,
   getTrackerConfig,
 };

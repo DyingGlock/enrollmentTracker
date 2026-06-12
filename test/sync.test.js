@@ -55,6 +55,29 @@ test('board utility lists are excluded from application tracking', () => {
   }
 });
 
+test('question and template cards are excluded from application tracking', () => {
+  assert.equal(
+    isApplicationCard(
+      { id: '5f8d7c1a2b3c4d5e6f7a8b9e', name: 'Why are you applying to POST?' },
+      config,
+      'Questions'
+    ),
+    false
+  );
+  assert.equal(
+    isApplicationCard(
+      { id: '5f8d7c1a2b3c4d5e6f7a8b9f', name: '[USERNAME]:[USERID]' },
+      config,
+      'Information'
+    ),
+    false
+  );
+  assert.equal(
+    isApplicationCard(applicationCard, config, 'Failed'),
+    true
+  );
+});
+
 test('class and board title cards are excluded from application tracking', () => {
   assert.equal(
     isApplicationCard(
