@@ -1,5 +1,17 @@
+const SITE_EMBED_TITLE = 'Firestone POST Enrollment Tracker';
+const SITE_NAME = SITE_EMBED_TITLE;
 const SITE_META_DESCRIPTION =
-  'An online tracker to view and track applications to the Firestone Peace Officer Standards and Training Academy.';
+  'Official Firestone POST platform to track/view current and previous applications to the Firestone Peace Officer Standards and Training academy.';
+const SITE_ARCHIVED_META_DESCRIPTION =
+  'Official Firestone POST platform to view previous applications to the Firestone Peace Officer Standards and Training academy.';
+
+/**
+ * @param {boolean} archived
+ * @returns {string}
+ */
+function getSiteMetaDescription(archived) {
+  return archived ? SITE_ARCHIVED_META_DESCRIPTION : SITE_META_DESCRIPTION;
+}
 
 const ACTIVE_LIST_NAMES = [
   'Pending',
@@ -81,7 +93,11 @@ function getTrackerConfig() {
 }
 
 module.exports = {
+  SITE_EMBED_TITLE,
+  SITE_NAME,
   SITE_META_DESCRIPTION,
+  SITE_ARCHIVED_META_DESCRIPTION,
+  getSiteMetaDescription,
   ACTIVE_LIST_NAMES,
   IGNORED_LIST_NAMES,
   TRACKED_APPLICANT_LIST_NAMES,

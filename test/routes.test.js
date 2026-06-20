@@ -140,8 +140,8 @@ test('tracker pages render successfully', async () => {
 
     assert.equal(activeResponse.status, 200);
     assert.equal(archivedResponse.status, 200);
-    assert.match(await activeResponse.text(), /POST Enrollment Tracker/);
-    assert.match(await archivedResponse.text(), /Archived Applications/);
+    assert.match(await activeResponse.text(), /Firestone POST Enrollment Tracker/);
+    assert.match(await archivedResponse.text(), /Enrollment Archive/);
   });
 });
 

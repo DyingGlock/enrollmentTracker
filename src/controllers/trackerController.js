@@ -33,7 +33,6 @@ async function renderActivePage(req, res, next) {
 
     res.status(200).send(
       renderTrackerPage({
-        title: `${currentClass.currentClass} Enrollment Tracker`,
         heading: currentClass.currentClass,
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
         imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,
@@ -59,7 +58,6 @@ async function renderArchivedPage(req, res, next) {
 
     res.status(200).send(
       renderTrackerPage({
-        title: `${currentClass.currentClass} Archived Applications`,
         heading: 'Archived Applications',
         pageUrl: `${getRequestOrigin(req)}${req.originalUrl}`,
         imageUrl: `${getRequestOrigin(req)}${assets.logoPngHref}`,

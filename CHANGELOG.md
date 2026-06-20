@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-06-20
+
+### Added
+
+- Archived page search bar with live client-side filtering by applicant name.
+- Multi-select class filter on the archived roster, populated from available archived class numbers.
+
+### Changed
+
+- Link embeds now use a compact summary card with a fixed title and page-specific descriptions that no longer mention class numbers.
+- Archived toolbar layout redesigned to remove duplicate totals and show a live “shown” count with separate Failed and Passed outcome stats.
+- Search bars now use a larger left-pointing magnifying-glass SVG icon.
+
 ## [1.0.6] - 2026-06-13
 
 ### Changed

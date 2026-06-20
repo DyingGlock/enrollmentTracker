@@ -7,6 +7,13 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+function renderSearchIcon() {
+  return `<svg class="searchBar__iconSvg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="14.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2" />
+    <path d="M9 16 3.5 21.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+  </svg>`;
+}
+
 function formatDate(value) {
   if (!value) return '—';
   const date = new Date(value);
@@ -24,7 +31,11 @@ function summarizeInfoBody(body) {
 }
 
 const PHASES = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'];
-const { SITE_META_DESCRIPTION } = require('../config/tracker');
+const {
+  SITE_EMBED_TITLE,
+  SITE_NAME,
+  getSiteMetaDescription,
+} = require('../config/tracker');
 const { getPublicAssetUrls } = require('../utils/assets');
 
 function getReviewStatus(record) {
@@ -205,15 +216,79 @@ function renderComment(value) {
   `;
 }
 
-function renderClassNumber(record) {
+function getRecordClassNumber(record) {
   const direct = record?.classNumber;
   if (direct !== null && direct !== undefined && String(direct).trim()) {
-    return escapeHtml(String(direct).trim());
+    return String(direct).trim();
   }
 
   const label = String(record?.classLabel || '').trim();
   const match = label.match(/(\d+)/);
-  return match ? escapeHtml(match[1]) : '—';
+  return match ? match[1] : '';
+}
+
+function renderClassNumber(record) {
+  const value = getRecordClassNumber(record);
+  return value ? escapeHtml(value) : '—';
+}
+
+function getArchivedClassNumbers(records) {
+  return [...new Set(records.map(getRecordClassNumber).filter(Boolean))].sort(
+    (left, right) => Number(right) - Number(left)
+  );
+}
+
+function renderArchivedClassFilter(records) {
+  const classNumbers = getArchivedClassNumbers(records);
+  if (!classNumbers.length) return '';
+
+  const options = classNumbers
+    .map(
+      (classNumber) => `
+        <label class="classFilter__option">
+          <input
+            type="checkbox"
+            value="${escapeHtml(classNumber)}"
+            data-archive-class-option
+            checked
+          />
+          <span>Class ${escapeHtml(classNumber)}</span>
+        </label>
+      `
+    )
+    .join('');
+
+  return `
+    <div class="archiveFilter" data-archive-class-filter>
+      <span class="archiveFilter__label" id="archived-class-filter-label">Class</span>
+      <div class="classFilter">
+        <button
+          type="button"
+          class="classFilter__toggle"
+          data-class-filter-toggle
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          aria-labelledby="archived-class-filter-label"
+        >
+          <span data-class-filter-summary>All classes</span>
+          <span class="classFilter__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div class="classFilter__menu" data-class-filter-menu hidden>
+          <div class="classFilter__actions">
+            <button type="button" class="classFilter__action" data-class-filter-all>
+              Select all
+            </button>
+            <button type="button" class="classFilter__action" data-class-filter-none>
+              Clear all
+            </button>
+          </div>
+          <div class="classFilter__options" role="listbox" aria-multiselectable="true">
+            ${options}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderRows(records, archived) {
@@ -231,12 +306,13 @@ function renderRows(records, archived) {
     .map(
       (record) => {
         const reviewStatus = getReviewStatus(record);
+        const classNumber = getRecordClassNumber(record);
         return `
         <tr data-search="${escapeHtml(
           `${record.name || ''}`
             .toLowerCase()
             .trim()
-        )}" data-status="${escapeHtml(String(reviewStatus.label || '').toLowerCase())}">
+        )}" data-class="${escapeHtml(classNumber)}" data-status="${escapeHtml(String(reviewStatus.label || '').toLowerCase())}">
           <td class="primary-cell">
             ${renderApplicantName(record.name)}
           </td>
@@ -261,7 +337,6 @@ function renderRows(records, archived) {
 }
 
 function renderTrackerPage({
-  title,
   heading,
   pageUrl,
   imageUrl,
@@ -271,6 +346,7 @@ function renderTrackerPage({
   archived,
 }) {
   const assets = getPublicAssetUrls();
+  const metaDescription = getSiteMetaDescription(archived);
   const activeStatusMap = archived
     ? null
     : currentClass.statusCounts.reduce((accumulator, item) => {
@@ -308,17 +384,19 @@ function renderTrackerPage({
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(title)}</title>
-    <meta name="description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
+    <title>${escapeHtml(SITE_EMBED_TITLE)}</title>
+    <meta name="description" content="${escapeHtml(metaDescription)}" />
+    <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="${escapeHtml(title)}" />
-    <meta property="og:description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
+    <meta property="og:title" content="${escapeHtml(SITE_EMBED_TITLE)}" />
+    <meta property="og:description" content="${escapeHtml(metaDescription)}" />
     <meta property="og:url" content="${escapeHtml(pageUrl)}" />
     <meta property="og:image" content="${escapeHtml(imageUrl)}" />
-    <meta property="og:image:alt" content="POST Enrollment Tracker logo" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${escapeHtml(title)}" />
-    <meta name="twitter:description" content="${escapeHtml(SITE_META_DESCRIPTION)}" />
+    <meta property="og:image:alt" content="POST logo" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(SITE_EMBED_TITLE)}" />
+    <meta name="twitter:description" content="${escapeHtml(metaDescription)}" />
     <meta name="twitter:image" content="${escapeHtml(imageUrl)}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -436,12 +514,14 @@ function renderTrackerPage({
                 }</h2>
                 <p class="sectionHeader__subtitle">${
                   archived
-                    ? 'Filter historical records by class and review final archived outcomes.'
+                    ? 'Search applicants and filter by class to review archived outcomes.'
                     : 'Synced from the live Trello board and mirrored into PostgreSQL for roster review.'
                 }</p>
               </div>
               <div class="sectionHeader__meta">${
-                archived ? 'Archive Review' : escapeHtml(currentClass.totalApplications) + ' active tracked'
+                archived
+                  ? `<span data-archive-visible-count>${escapeHtml(records.length)}</span> shown`
+                  : escapeHtml(currentClass.totalApplications) + ' active tracked'
               }</div>
             </div>
 
@@ -449,27 +529,29 @@ function renderTrackerPage({
               archived
                 ? `
             <div class="tableToolbar tableToolbar--archive">
-              <div class="archiveControls">
-                <div class="archiveRecordsPill">
-                  <span data-archive-visible-count>${escapeHtml(records.length)}</span> records shown
-                </div>
+              <div class="archiveToolbarSearchRow">
+                <label class="searchBar" for="archived-application-search">
+                  <span class="searchBar__icon">${renderSearchIcon()}</span>
+                  <input
+                    id="archived-application-search"
+                    class="searchBar__input"
+                    type="search"
+                    placeholder="Search by Roblox username or Roblox ID"
+                    data-archive-search
+                  />
+                </label>
+                ${renderArchivedClassFilter(records)}
               </div>
-              <div class="archiveStats archiveStats--compact">
-                <article class="archiveStatCard archiveStatCard--applications">
-                  <span class="archiveStatCard__label">Applications</span>
-                  <strong class="archiveStatCard__value" data-archive-stat="applications">${escapeHtml(
-                    archivedStats.applications
-                  )}</strong>
-                </article>
-                <article class="archiveStatCard archiveStatCard--failed">
-                  <span class="archiveStatCard__label">Failed</span>
-                  <strong class="archiveStatCard__value" data-archive-stat="failed">${escapeHtml(
+              <div class="archiveOutcomeStats">
+                <article class="archiveOutcomeStat archiveOutcomeStat--failed">
+                  <span class="archiveOutcomeStat__label">Failed</span>
+                  <strong class="archiveOutcomeStat__value" data-archive-stat="failed">${escapeHtml(
                     archivedStats.failed
                   )}</strong>
                 </article>
-                <article class="archiveStatCard archiveStatCard--passed">
-                  <span class="archiveStatCard__label">Passed</span>
-                  <strong class="archiveStatCard__value" data-archive-stat="passed">${escapeHtml(
+                <article class="archiveOutcomeStat archiveOutcomeStat--passed">
+                  <span class="archiveOutcomeStat__label">Passed</span>
+                  <strong class="archiveOutcomeStat__value" data-archive-stat="passed">${escapeHtml(
                     archivedStats.passed
                   )}</strong>
                 </article>
@@ -479,7 +561,7 @@ function renderTrackerPage({
                 : `
             <div class="tableToolbar">
               <label class="searchBar" for="application-search">
-                <span class="searchBar__icon" aria-hidden="true">⌕</span>
+                <span class="searchBar__icon">${renderSearchIcon()}</span>
                 <input
                   id="application-search"
                   class="searchBar__input"
@@ -523,7 +605,7 @@ function renderTrackerPage({
               ${
                 archived
                   ? archivedStats.applications
-                    ? '<div class="tableEmptyState" data-archive-empty hidden>No archived applications match this class.</div>'
+                    ? '<div class="tableEmptyState" data-search-empty hidden>No matching applications found.</div>'
                     : ''
                   : '<div class="tableEmptyState" data-search-empty hidden>No matching applications found.</div>'
               }
