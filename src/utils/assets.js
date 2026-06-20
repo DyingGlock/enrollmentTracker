@@ -16,9 +16,11 @@ const fs = require('fs');
  */
 function findManifestPath(moduleDir = __dirname, cwd = process.cwd()) {
   const candidates = [
+    path.join(moduleDir, 'manifest.json'),
     path.join(moduleDir, '..', '..', 'build', 'manifest.json'),
     path.join(moduleDir, '..', 'build', 'manifest.json'),
     path.join(cwd, 'build', 'manifest.json'),
+    path.join(cwd, 'dist', 'manifest.json'),
   ];
 
   for (const candidate of new Set(candidates.map((p) => path.resolve(p)))) {
@@ -53,15 +55,35 @@ function stripRepeatedExtension(value, extNoDot) {
 }
 
 /**
+ * @param {string} filePath
+ * @returns {string}
+ */
+function hashFileContent(filePath) {
+  const digest = crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  return digest.slice(0, 12);
+}
+
+/**
+ * @param {string} assetPath
+ * @param {string|undefined} contentHash
+ * @returns {string}
+ */
+function withCacheBust(assetPath, contentHash) {
+  if (!contentHash) return assetPath;
+  return `${assetPath}?v=${contentHash}`;
+}
+
+/**
  * @param {string|undefined} baseName
  * @param {string} extNoDot
  * @param {string} fallbackPath
+ * @param {string|undefined} contentHash
  * @returns {string}
  */
-function buildStaticAssetPath(baseName, extNoDot, fallbackPath) {
+function buildStaticAssetPath(baseName, extNoDot, fallbackPath, contentHash) {
   if (!baseName) return fallbackPath;
   const normalized = stripRepeatedExtension(baseName, extNoDot);
-  return `/static/${normalized}.${extNoDot}`;
+  return withCacheBust(`/static/${normalized}.${extNoDot}`, contentHash);
 }
 
 /**
@@ -85,17 +107,20 @@ function getPublicAssetUrls() {
   const trackerCss = buildStaticAssetPath(
     assets.trackerCss,
     'css',
-    '/static/tracker.css'
+    '/static/tracker.css',
+    assets.trackerCssHash
   );
   const trackerJs = buildStaticAssetPath(
     assets.trackerJs,
     'js',
-    '/static/tracker.js'
+    '/static/tracker.js',
+    assets.trackerJsHash
   );
   const logoPng = buildStaticAssetPath(
     assets.logoPng,
     'png',
-    '/static/post%20loogo.png'
+    '/static/post%20loogo.png',
+    assets.logoPngHash
   );
   // Favicon uses the same logo PNG.
   const favicon = logoPng;

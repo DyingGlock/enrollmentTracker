@@ -8,7 +8,10 @@
     "assets": {
       "trackerCss": "YX5f7NaYQKqi0ShKbDW6DZGh",
       "trackerJs": "tRpj5MEXNvGFO4Kq6NEKY15w",
-      "logoPng": "TPlcECBqPI3dsypdTX7BeS0e"
+      "logoPng": "TPlcECBqPI3dsypdTX7BeS0e",
+      "trackerCssHash": "a4213630ec3f",
+      "trackerJsHash": "591b8a04fcfc",
+      "logoPngHash": "c296c2fe3ca5"
     }
   }
 }

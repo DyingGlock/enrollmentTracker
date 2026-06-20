@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2026-06-20
+
+### Fixed
+
+- Active nav tab (Home/Archived) no longer changes colour on hover when already selected.
+- Production CSS cache busting after rebuilds, so archived page styles load correctly behind Cloudflare instead of serving stale cached assets.
+
+### Changed
+
+- Build writes content hashes into the manifest and appends them to static asset URLs (`?v=...`).
+- Bundled production runtime also reads `dist/manifest.json` for asset resolution.
+
 ## [1.0.7] - 2026-06-20
 
 ### Added

@@ -168,7 +168,7 @@ test('production assets resolve from source and bundled directory layouts', () =
   );
   assert.equal(
     findManifestPath(path.join(projectRoot, 'dist'), projectRoot),
-    expectedManifest
+    path.join(projectRoot, 'dist', 'manifest.json')
   );
 
   const previousNodeEnv = process.env.NODE_ENV;
@@ -176,9 +176,9 @@ test('production assets resolve from source and bundled directory layouts', () =
 
   try {
     const assets = getPublicAssetUrls();
-    assert.match(assets.trackerCssHref, /^\/static\/[A-Za-z0-9]+\.css$/);
-    assert.match(assets.trackerJsSrc, /^\/static\/[A-Za-z0-9]+\.js$/);
-    assert.match(assets.logoPngHref, /^\/static\/[A-Za-z0-9]+\.png$/);
+    assert.match(assets.trackerCssHref, /^\/static\/[A-Za-z0-9]+\.css(\?v=[a-f0-9]+)?$/);
+    assert.match(assets.trackerJsSrc, /^\/static\/[A-Za-z0-9]+\.js(\?v=[a-f0-9]+)?$/);
+    assert.match(assets.logoPngHref, /^\/static\/[A-Za-z0-9]+\.png(\?v=[a-f0-9]+)?$/);
   } finally {
     if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = previousNodeEnv;

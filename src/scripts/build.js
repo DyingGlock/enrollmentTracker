@@ -6,6 +6,7 @@
  *
  * Output filename is a “random” alphanumeric string generated ONCE and stored
  * in build/manifest.json so subsequent builds overwrite the same file (no new build files).
+ * Content hashes are also written to the manifest so asset URLs cache-bust after rebuilds.
  */
 
 const fs = require('fs');
@@ -41,6 +42,15 @@ function randomBase62(len) {
     out += alphabet[bytes[i] % alphabet.length];
   }
   return out;
+}
+
+/**
+ * @param {string} filePath
+ * @returns {string}
+ */
+function hashFileContent(filePath) {
+  const digest = crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  return digest.slice(0, 12);
 }
 
 /**
@@ -233,6 +243,7 @@ async function main() {
     const css = readText(cssIn);
     const cssResult = await esbuild.transform(css, { loader: 'css', minify: true });
     writeText(cssOut, cssResult.code);
+    manifest.public.assets.trackerCssHash = hashFileContent(cssOut);
   }
 
   // Browser JS (bundle to iife, minify, then obfuscate)
@@ -274,6 +285,7 @@ async function main() {
     }).getObfuscatedCode();
     writeText(jsOut, jsObfuscated);
     fs.rmSync(jsTmpOut, { force: true });
+    manifest.public.assets.trackerJsHash = hashFileContent(jsOut);
   }
 
   // Images: copy + rename (so browser-served asset names aren't source names)
@@ -290,6 +302,7 @@ async function main() {
   if (fs.existsSync(logoIn)) {
     fs.mkdirSync(path.dirname(logoOut), { recursive: true });
     fs.copyFileSync(logoIn, logoOut);
+    manifest.public.assets.logoPngHash = hashFileContent(logoOut);
   }
 
   // Cleanup: ensure rebuilds do not accumulate duplicate assets.
@@ -304,6 +317,10 @@ async function main() {
   deleteMatchingFiles(publicOutDir, /\.svg$/i, keep);
 
   writeJson(manifestPath, manifest);
+
+  // Bundled runtime resolves assets from build/manifest.json; keep a copy beside dist/.
+  const distManifestPath = path.join(distDir, 'manifest.json');
+  writeJson(distManifestPath, manifest);
 
   // Print the built file path for tooling.
   process.stdout.write(`${manifest.builtFile}\n`);

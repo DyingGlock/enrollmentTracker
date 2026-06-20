@@ -232,21 +232,18 @@ a {
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
-.nav a:hover {
+.nav a:not(.navLink--active):hover,
+.nav a:not(.navLink--active):focus-visible {
   color: #f6f8fc;
   background: rgba(255, 255, 255, 0.04);
   border-color: var(--line-soft);
 }
 
-.navLink--active {
+.nav a.navLink--active,
+.nav a.navLink--active:hover,
+.nav a.navLink--active:focus-visible {
   color: #08101d !important;
-  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
-  border-color: rgba(243, 190, 87, 0.35) !important;
-}
-
-.navLink--active:hover {
-  color: #08101d !important;
-  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500)) !important;
   border-color: rgba(243, 190, 87, 0.35) !important;
 }
 
